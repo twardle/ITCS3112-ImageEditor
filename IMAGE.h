@@ -20,7 +20,7 @@ public:
 	void setHeight(int h);
 
 	void getImagePixel(int col, int row, int arr[]);
-	void setImagePixel(int col, int row, int pixel, int rgb);
+	void setImagePixel(int col, int row, int* pixel);
 
 	void toGrayscale();
 	void flipHorizontal();
