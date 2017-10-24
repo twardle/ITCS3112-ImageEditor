@@ -116,23 +116,22 @@ using namespace std;
 	 *    @param int col Column Number
 	 *    @param int* pixel array with pixel RGB values
 	 */
-	void IMAGE::setImagePixel(int col, int row, int pixel, int rgb){
-		imgArr[row][col][rgb] = pixel;
+	void IMAGE::setImagePixel(int col, int row, int* pixel){
+		for(int rgb = 0; rgb < 3; rgb++)
+			imgArr[row][col][rgb] = pixel[rgb];
+
 	}
 
 	void IMAGE::toGrayscale(){
 		int temp[3];
-		for(int row; row < height; row++){
+		for(int row = 0; row < height; row++){
 			for(int col = 0; col < width; col++){
-				for(int rgb = 0; rgb < 3; rgb++){
+				for(int rgb = 0; rgb < 3; rgb++)
 					temp[rgb] = imgArr[row][col][0] * 0.299 + imgArr[row][col][1] * 0.587 + imgArr[row][col][2] * 0.144;
-					cout << "visited" << endl;
-					setImagePixel(col, row, temp[rgb], rgb);
-				}
-				cout << endl;
+				setImagePixel(col, row, temp);
 			}
 		}
-		for(int row; row < height; row++){
+		for(int row = 0; row < height; row++){
 					for(int col = 0; col < width; col++){
 						for(int rgb = 0; rgb < 3; rgb++){
 							//cout << imgArr[row][col][rgb] << ",";
@@ -148,8 +147,8 @@ using namespace std;
 			for(int col = 0; col < floor(width/2); col++){
 				for(int k=0; k < 3; k++){
 					temp[k] = imgArr[row][col][k];
-					setImagePixel(col,row,imgArr[row][width-col-1][k],k);
-					setImagePixel(width-col-1,row,temp[k],k);
+					setImagePixel(col,row,imgArr[row][width-col-1]);
+					setImagePixel(width-col-1,row,temp);
 				}
 			}
 	}
@@ -162,7 +161,7 @@ using namespace std;
 				temp[1] = 255 - imgArr[row][col][2];
 				temp[2] = imgArr[row][col][2];
 				for(int rgb=0; rgb < 3; rgb++)
-					setImagePixel(col,row,temp[rgb],rgb);
+					setImagePixel(col,row,temp);
 			}
 
 	}
@@ -175,7 +174,7 @@ using namespace std;
 				temp[1] = imgArr[row][col][1];
 				temp[2] = imgArr[row][col][2];
 				for(int rgb=0; rgb < 3; rgb++)
-					setImagePixel(col,row,temp[rgb],rgb);
+					setImagePixel(col,row,temp);
 			}
 	}
 
