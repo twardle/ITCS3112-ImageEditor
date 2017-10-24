@@ -43,40 +43,59 @@ int main(){
 	cin >> oName;
 	oName = "data/" + oName + ".ppm";
 	IMAGE* img = new IMAGE(oName);
-	//img->read(oName);
 
 
 	while(rerun){
 		//allows the user to pick the starting x value
 		bool vInput = false;
-		data.y = -1;
+		data.y = 200;
 		data.x = 0;
-		int pixArr[] = {200,0,0};
+		int pixArr[] = {255,0,0};
+		img->reset();
+		int temp = -1;
 
-		//checks for a valid input, otherwise takes in another input
-		while (!vInput){
-			cout << "Pick StartY (0-" << (img->getHeight() - 3) <<"):\t";
-			cin >> data.y;
-			//if cin fails
-			if(!cin){
-				//output invalid input and clear the current cin
-				cout <<"ERR: INVALID INPUT" << endl;
-				cin.clear();
-				cin.ignore(80, '\n');
-			}
-			else if(!(data.y > (img->getHeight() - 4) || data.y < 0)){
-				vInput = true;		//if cin doesn't have an error and the input is within the parameters, it is a valid input
-			}
-			else{
-				cout << "ERR: OUTSIDE RANGE" << endl;		//the input is outside of the range specified.
-			}
+		vInput = false;
+		while(!vInput){
+					cout << "***MENU***\n1)\tTo Grayscale\n2)\tFlip Horizontally\n3)\tNegate Blue\n4)\tFlatten Red\n";
+					cin >> temp;
+
+					if(!cin){
+						cout <<"ERR: INVALID INPUT" << endl;
+						cin.clear();
+						cin.ignore(80, '\n');
+					}
+					else if(temp < 5 && temp > -1){
+						vInput = true;
+					}
+					else{
+						cout << "ERR: OUTSIDE RANGE" << endl;
+					}
+				}
+
+		switch(temp){
+		case 1:
+			img->toGrayscale();
+			break;
+		case 2:
+			img->flipHorizontal();
+			break;
+		case 3:
+			img->negateBlue();
+			break;
+		case 4:
+			img->flattenRed();
+			break;
+		default:
+			cout << "ERR: INVALID INPUT";
 		}
 
-		//runs the pathing algorithm until it reaches the end of the horizontal
-		while((data.x) < (img->getWidth())) {
-			img->setImagePixel(data.x, data.y, pixArr);
-			data.x += 3;
-		}
+		//opens a new out file for the new path
+		cout << "Name the file:\t";
+		cin >> oName;
+		oName = "data/" + oName;
+
+		//prints the path.ppm
+		img->write(oName);
 
 		//validation of rerun input
 		vInput = false;
@@ -96,15 +115,10 @@ int main(){
 				cout << "ERR: OUTSIDE RANGE" << endl;
 			}
 		}
+
 	}
 
-	//opens a new out file for the new path
-	cout << "Name the file:\t";
-	cin >> oName;
-	oName = "data/" + oName;
 
-	//prints the path.ppm
-	img->write(oName);
 	img->~IMAGE();
 	//end of program
 	return 0;
