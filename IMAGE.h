@@ -3,10 +3,10 @@ using namespace std;
 class IMAGE{
 private:
 	int width, height;
+	int ***imgArr;
+	int ***orgArr;
 public:
 	IMAGE();
-
-	int **imgArr;
 
 	IMAGE(string input_file);
 	IMAGE(int height_, int width_);
@@ -20,7 +20,14 @@ public:
 	void setHeight(int h);
 
 	void getImagePixel(int col, int row, int arr[]);
-	void setImagePixel(int col, int row, int* pixel);
+	void setImagePixel(int col, int row, int pixel, int rgb);
+
+	void toGrayscale();
+	void flipHorizontal();
+	void negateBlue();
+	void flattenRed();
+
+	void reset();
 
 	int read(string infile);
 	void write(string outfile);
