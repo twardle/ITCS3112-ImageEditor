@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 #include "IMAGE.h"
 
 using namespace std;
@@ -19,6 +20,7 @@ using namespace std;
 		width = 0;
 		height = 0;
 		imgArr = {};
+		orgArr = imgArr;
 	};
 	/**
 	 *    constructor function for object
@@ -40,16 +42,30 @@ using namespace std;
 	IMAGE::IMAGE(int height_, int width_){
 		width = width_;
 		height = height_;
-		imgArr = new int *[height];
-		for(int i = 0; i < height; i++)
-			imgArr[i] = (int*) new int[width];
+		imgArr = new int **[height];
+		for(int i = 0; i < height; i++){
+			imgArr[i] = new int*[width];
+			for(int j = 0; j < width; j++){
+				imgArr[i][j] = (int*) new int[3];
+			}
+		}
+		orgArr = imgArr;
 	}
 	/**
 	 *    function that de-constructs the object
 	 */
 	IMAGE::~IMAGE(){
-		for(int i = (width - 1); i > -1; i--)		delete [] imgArr[i];
+		for(int i = (height - 1); i >= 0; i--) {
+			for(int j = width; j >= 0; j--) delete [] imgArr[i][j];
+			delete [] imgArr[i];
+		}
 		delete [] imgArr;
+
+		for(int i = (height - 1); i >= 0; i--) {
+					for(int j = width; j >= 0; j--) delete [] orgArr[i][j];
+					delete [] orgArr[i];
+				}
+				delete [] orgArr;
 	}
 	/**
 	 *    function gets the value of the width
@@ -89,9 +105,9 @@ using namespace std;
 	 *    @param int* arr array to be set with the pixel's RGB values
 	 */
 	void IMAGE::getImagePixel(int col, int row, int arr[]){
-		arr[0] = imgArr[col][row];
-		arr[1] = imgArr[col][row+1];
-		arr[2] = imgArr[col][row+2];
+		arr[0] = imgArr[col][row][0];
+		arr[1] = imgArr[col][row][1];
+		arr[2] = imgArr[col][row][2];
 	}
 	/**
 	 *    function sets a pixel to the values in a pixel array passed to the function
@@ -100,14 +116,74 @@ using namespace std;
 	 *    @param int col Column Number
 	 *    @param int* pixel array with pixel RGB values
 	 */
-	void IMAGE::setImagePixel(int row, int col, int* pixel){
-		for(int i = -10; i < 10; i++){
-			for(int j = 0; j < 3; j++){
-				if((col + i) > 0 && ((col + i) < getHeight()) && (row + j) > 0 && (row + j) < getWidth()){
-					imgArr[col+j][row+i] = pixel[j];
+	void IMAGE::setImagePixel(int col, int row, int pixel, int rgb){
+		imgArr[row][col][rgb] = pixel;
+	}
+
+	void IMAGE::toGrayscale(){
+		int temp[3];
+		for(int row; row < height; row++){
+			for(int col = 0; col < width; col++){
+				for(int rgb = 0; rgb < 3; rgb++){
+					temp[rgb] = imgArr[row][col][0] * 0.299 + imgArr[row][col][1] * 0.587 + imgArr[row][col][2] * 0.144;
+					cout << "visited" << endl;
+					setImagePixel(col, row, temp[rgb], rgb);
 				}
+				cout << endl;
 			}
 		}
+		for(int row; row < height; row++){
+					for(int col = 0; col < width; col++){
+						for(int rgb = 0; rgb < 3; rgb++){
+							//cout << imgArr[row][col][rgb] << ",";
+						}
+					}
+					//cout << endl;
+				}
+	}
+	//may need work
+	void IMAGE::flipHorizontal(){
+		int temp[3];
+		for(int row; row < height; row++)
+			for(int col = 0; col < floor(width/2); col++){
+				for(int k=0; k < 3; k++){
+					temp[k] = imgArr[row][col][k];
+					setImagePixel(col,row,imgArr[row][width-col-1][k],k);
+					setImagePixel(width-col-1,row,temp[k],k);
+				}
+			}
+	}
+
+	void IMAGE::negateBlue(){
+		int temp[3];
+		for(int row; row < height; row++)
+			for(int col = 0; col < width; col++){
+				temp[0] = imgArr[row][col][0];
+				temp[1] = 255 - imgArr[row][col][2];
+				temp[2] = imgArr[row][col][2];
+				for(int rgb=0; rgb < 3; rgb++)
+					setImagePixel(col,row,temp[rgb],rgb);
+			}
+
+	}
+
+	void IMAGE::flattenRed(){
+		int temp[3];
+		for(int row; row < height; row++)
+			for(int col = 0; col < width; col++){
+				temp[0] = 0;
+				temp[1] = imgArr[row][col][1];
+				temp[2] = imgArr[row][col][2];
+				for(int rgb=0; rgb < 3; rgb++)
+					setImagePixel(col,row,temp[rgb],rgb);
+			}
+	}
+
+	void IMAGE::reset(){
+		for(int i = 0; i < height; i++)
+			for(int j = 0; j < width; j++)
+				for(int k = 0; k < 3; k++)
+					imgArr[i][j][k] = orgArr[i][j][k];
 	}
 
 	/**
@@ -120,36 +196,42 @@ using namespace std;
 		int maxVal = 0;
 		ifstream file;
 		string line;
-		int col,row;
 
 		//opens the .dat file
 		file.open(infile);
 		//reads each line, for the first three values (length, width and maxVal)
 		file >> line;
-		cout << line << endl;
 		file >> line;
 		setWidth(atoi(line.c_str()));
-		cout << width << endl;
 		file >> line;
 		setHeight(atoi(line.c_str()));
-		cout << height << endl;
 		file >> line;
 		maxVal = atoi(line.c_str());
-		cout << maxVal << endl;
 
-		imgArr = new int *[height];
-				for(int i = 0; i < height; i++)
-					imgArr[i] = (int*) new int[width * 3];
+		imgArr = new int **[height];
+				for(int i = 0; i < height; i++){
+					imgArr[i] = new int*[width];
+					for(int j = 0; j < width; j++) imgArr[i][j] = (int*) new int[3];
+				}
+		orgArr = new int **[height];
+						for(int i = 0; i < height; i++){
+							orgArr[i] = new int*[width];
+							for(int j = 0; j < width; j++) orgArr[i][j] = (int*) new int[3];
+						}
+
 
 		//until the end of the file, read the values into the new image array.
-			for(int i = 0; i < getHeight(); i++){
-				col = i;
-					for(int j = 0; j < (getWidth() * 3); j++){
-						row = j / 3;
-						file >> line;
-						imgArr[col][row] = atoi(line.c_str());
-					}
-				}
+			for(int col = 0; col < getHeight(); col++)
+					for(int row = 0; row < width; row++)
+						for(int rgb = 0; rgb < 3; rgb++){
+							file >> line;
+							imgArr[col][row][rgb] = atoi(line.c_str());
+						}
+
+		for(int i = 0; i < height; i++)
+					for(int j = 0; j < width; j++)
+						for(int k = 0; k < 3; k++)
+							orgArr[i][j][k] = imgArr[i][j][k];
 		file.close();
 		return maxVal;
 	}
@@ -165,10 +247,13 @@ using namespace std;
 		ofile << "P3" << endl << getWidth() << " " << getHeight() << endl << "255 ";
 
 		for(int i = 0; i < (getHeight()); i++){
-			for(int j = 0; j < getWidth(); j++){
-				//cout << imgArr[i][j] << " " << imgArr[i][j+1] << " " << imgArr[i][j+2] <<  endl;
-				ofile << imgArr[i][j] << " " << imgArr[i][j+1] << " " << imgArr[i][j+2] <<  " ";
-			}
+			for(int j = 0; j < getWidth(); j++)
+				for(int k = 0; k < 3; k++){
+					//cout << imgArr[i][j][k] << ",";
+					ofile << imgArr[i][j][k] << " ";
+				}
+			//cout << endl;
+			ofile << endl;
 		}
 		ofile.close();
 
