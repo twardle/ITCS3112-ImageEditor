@@ -41,12 +41,14 @@ int main(){
 
 	//prints the pixel values to the out file.
 	ifstream infile;
+	//checks for invalid input
 	while(!vInput){
 		cout << "filename:\t";
 		cin >> oName;
 		oName = "data/" + oName + ".ppm";
 		infile.open(oName);
 
+		//tests file to make sure it exists
 		if(!cin){
 			cout <<"ERR: INVALID INPUT" << endl;
 			cin.clear();
@@ -60,11 +62,12 @@ int main(){
 		}
 
 	}
+	//creates the IMAGE object
 	IMAGE* img = new IMAGE(oName);
 
-
+	//allows the user to rerun the image manipulation
 	while(rerun){
-		//allows the user to pick the starting x value
+		//sets up the initial values
 		vInput = false;
 		data.y = 200;
 		data.x = 0;
@@ -72,22 +75,23 @@ int main(){
 
 		vInput = false;
 		while(!vInput){
-					cout << "***MENU***\n1)\tTo Grayscale\n2)\tFlip Horizontally\n3)\tNegate Blue\n4)\tFlatten Red\n";
-					cin >> temp;
+			//prints a menu and allows the user to pick an option, error checks their input
+			cout << "***MENU***\n1)\tTo Grayscale\n2)\tFlip Horizontally\n3)\tNegate Blue\n4)\tFlatten Red\n";
+			cin >> temp;
 
-					if(!cin){
-						cout <<"ERR: INVALID INPUT" << endl;
-						cin.clear();
-						cin.ignore(80, '\n');
-					}
-					else if(temp < 5 && temp > -1){
-						vInput = true;
-					}
-					else{
-						cout << "ERR: OUTSIDE RANGE" << endl;
-					}
-				}
-
+			if(!cin){
+				cout <<"ERR: INVALID INPUT" << endl;
+				cin.clear();
+				cin.ignore(80, '\n');
+			}
+			else if(temp < 5 && temp > -1){
+				vInput = true;
+			}
+			else{
+				cout << "ERR: OUTSIDE RANGE" << endl;
+			}
+		}
+		//switch based on user input, runs the appropriate image manipulation
 		switch(temp){
 		case 1:
 			img->toGrayscale();
@@ -118,6 +122,7 @@ int main(){
 		bool vInput2 = false;
 		bool reset = false;
 		while(!vInput){
+			//asks the user if they would like to rerun the program
 			cout << "press 1 to rerun the program: ";
 			cin >> rerun;
 
@@ -130,6 +135,7 @@ int main(){
 				vInput = true;
 				if(rerun){
 					while(!vInput2){
+						//allows the user to reset any changes they've made to the image
 						cout << "press 1 to reset the modifications: ";
 						cin >> reset;
 
@@ -154,6 +160,7 @@ int main(){
 			}
 		}
 	}
+	//deconstructs the image object
 	img->~IMAGE();
 	//end of program
 	return 0;
