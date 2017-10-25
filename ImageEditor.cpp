@@ -33,25 +33,41 @@ struct DATA {
  */
 int main(){
 	DATA data;
-	data.fname = ("data/colorado1.dat");
+	bool vInput = false;
+	data.fname = "";
 	//IMAGE img;
 	string oName;
 	bool rerun = true;
 
 	//prints the pixel values to the out file.
-	cout << "filename:\t";
-	cin >> oName;
-	oName = "data/" + oName + ".ppm";
+	ifstream infile;
+	while(!vInput){
+		cout << "filename:\t";
+		cin >> oName;
+		oName = "data/" + oName + ".ppm";
+		infile.open(oName);
+
+		if(!cin){
+			cout <<"ERR: INVALID INPUT" << endl;
+			cin.clear();
+			cin.ignore(80, '\n');
+		}
+		else if(infile.good()){
+			vInput = true;
+		}
+		else{
+			cout << "ERR: FILE DOES NOT EXIST" << endl;
+		}
+
+	}
 	IMAGE* img = new IMAGE(oName);
 
 
 	while(rerun){
 		//allows the user to pick the starting x value
-		bool vInput = false;
+		vInput = false;
 		data.y = 200;
 		data.x = 0;
-		int pixArr[] = {255,0,0};
-		img->reset();
 		int temp = -1;
 
 		vInput = false;
@@ -99,8 +115,10 @@ int main(){
 
 		//validation of rerun input
 		vInput = false;
+		bool vInput2 = false;
+		bool reset = false;
 		while(!vInput){
-			cout << "press 1 to run with a new Y value: ";
+			cout << "press 1 to rerun the program: ";
 			cin >> rerun;
 
 			if(!cin){
@@ -110,15 +128,32 @@ int main(){
 			}
 			else if(rerun == true || rerun == false){
 				vInput = true;
+				if(rerun){
+					while(!vInput2){
+						cout << "press 1 to reset the modifications: ";
+						cin >> reset;
+
+						if(!cin){
+							cout <<"ERR: INVALID INPUT" << endl;
+							cin.clear();
+							cin.ignore(80, '\n');
+						}
+						else if(reset == true || reset == false){
+							vInput2 = true;
+
+							if(reset) img->reset();
+						}
+						else{
+							cout << "ERR: OUTSIDE RANGE" << endl;
+						}
+					}
+				}
 			}
 			else{
 				cout << "ERR: OUTSIDE RANGE" << endl;
 			}
 		}
-
 	}
-
-
 	img->~IMAGE();
 	//end of program
 	return 0;
