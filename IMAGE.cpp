@@ -121,7 +121,9 @@ using namespace std;
 			imgArr[row][col][rgb] = pixel[rgb];
 
 	}
-
+	/**
+	 *    function sets all pixels to a grayscale value, using given coefficients for each pixel.
+	 */
 	void IMAGE::toGrayscale(){
 		int temp[3];
 		for(int row = 0; row < height; row++){
@@ -140,32 +142,38 @@ using namespace std;
 					//cout << endl;
 				}
 	}
-	//may need work
+	/**
+	 *    function swaps all pixels horizontally, mirroring the image
+	 */
 	void IMAGE::flipHorizontal(){
 		int temp[3];
 		for(int row; row < height; row++)
 			for(int col = 0; col < floor(width/2); col++){
-				for(int k=0; k < 3; k++){
+				for(int k=0; k < 3; k++)
 					temp[k] = imgArr[row][col][k];
-					setImagePixel(col,row,imgArr[row][width-col-1]);
-					setImagePixel(width-col-1,row,temp);
-				}
+				setImagePixel(col,row,imgArr[row][width-col-1]);
+				setImagePixel(width-col-1,row,temp);
 			}
-	}
 
+	}
+	/**
+	 *    function negates the blue value, setting it to 255 - <original value>
+	 */
 	void IMAGE::negateBlue(){
 		int temp[3];
 		for(int row; row < height; row++)
 			for(int col = 0; col < width; col++){
 				temp[0] = imgArr[row][col][0];
-				temp[1] = 255 - imgArr[row][col][2];
-				temp[2] = imgArr[row][col][2];
+				temp[1] = imgArr[row][col][1];
+				temp[2] = 255 - imgArr[row][col][2];
 				for(int rgb=0; rgb < 3; rgb++)
 					setImagePixel(col,row,temp);
 			}
 
 	}
-
+	/**
+	 *    function sets the red value to zero
+	 */
 	void IMAGE::flattenRed(){
 		int temp[3];
 		for(int row; row < height; row++)
@@ -177,7 +185,9 @@ using namespace std;
 					setImagePixel(col,row,temp);
 			}
 	}
-
+	/**
+	 *    function resets the modified image with a copy of the original image
+	 */
 	void IMAGE::reset(){
 		for(int i = 0; i < height; i++)
 			for(int j = 0; j < width; j++)
@@ -241,6 +251,7 @@ using namespace std;
 	 */
 	void IMAGE::write(string outfile){
 		ofstream ofile;
+		cout << "writing to \"" << outfile << ".ppm\"" << endl;
 		ofile.open(outfile + ".ppm");
 
 		ofile << "P3" << endl << getWidth() << " " << getHeight() << endl << "255 ";
